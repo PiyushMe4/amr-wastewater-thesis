@@ -1,0 +1,26 @@
+# Raw data
+data/raw/
+data/fastq/
+*.fastq
+*.fastq.gz
+*.fq
+*.fq.gz
+
+# SRA Toolkit downloads
+ncbi/
+sra/
+
+# Large intermediate files
+*.bam
+*.sam
+*.bai
+
+# Logs and temp files
+*.log
+tmp/
+temp/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
