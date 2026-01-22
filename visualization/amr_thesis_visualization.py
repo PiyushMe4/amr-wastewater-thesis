@@ -26,128 +26,59 @@ from PIL import Image
 import warnings
 warnings.filterwarnings('ignore')
 
-# Set up custom color palette - Optimized for white background
+# Academic-grade color palette
 COLORS = {
-    'human': '#E74C3C',       # Warm red
-    'animal': '#27AE60',       # Green
-    'environment': '#3498DB',  # Blue
-    'medical': '#9B59B6',      # Purple
-    'municipal': '#F39C12',    # Orange
-    'wastewater': '#1ABC9C',   # Teal
-    'dark_bg': '#FFFFFF',      # White background
-    'light_text': '#2C3E50',   # Dark text for white bg
-    'accent': '#E056FD',       # Accent pink
-    'gradient_start': '#667eea',
-    'gradient_end': '#764ba2',
-    'arg': '#FF6B6B',          # ARG color
-    'infrastructure': '#7F8C8D',
-    'text_dark': '#000000',    # Black text for titles
-    'text_secondary': '#666666', # Grey for subtitles
-    'black': '#000000',        # Pure black
-    'grey': '#666666'          # Grey for subheadings
+    'medical': '#76448A',          # Muted Purple (Human/Healthcare)
+    'wastewater': '#16A085',       # Teal/Blue (Environmental Matrix)
+    'non_medical': '#7D8E7D',      # Muted Gray-Green (Community Inputs)
+    'neutral': '#566573',         # Gray for processes
+    'neutral_light': '#F2F4F4',   # Light gray for backgrounds
+    'text_dark': '#17202A',        # Near black for text
+    'text_grey': '#566573',        # Gray for secondary text
+    'border': '#2C3E50',           # Dark border
+    'white': '#FFFFFF'
 }
 
-# Icon URLs from free icon sources (using simple, reliable CDN icons)
-ICON_URLS = {
-    'human': 'https://cdn-icons-png.flaticon.com/128/1077/1077114.png',
-    'animal': 'https://cdn-icons-png.flaticon.com/128/616/616408.png',
-    'environment': 'https://cdn-icons-png.flaticon.com/128/3137/3137807.png',
-    'household': 'https://cdn-icons-png.flaticon.com/128/553/553376.png',
-    'hospital': 'https://cdn-icons-png.flaticon.com/128/4320/4320371.png',
-    'industry': 'https://cdn-icons-png.flaticon.com/128/2942/2942169.png',
-    'water': 'https://cdn-icons-png.flaticon.com/128/606/606795.png',
-    'dna': 'https://cdn-icons-png.flaticon.com/128/2784/2784428.png',
-    'database': 'https://cdn-icons-png.flaticon.com/128/2906/2906274.png',
-    'filter': 'https://cdn-icons-png.flaticon.com/128/7693/7693332.png',
-    'bacteria': 'https://cdn-icons-png.flaticon.com/128/3774/3774299.png',
-    'chart': 'https://cdn-icons-png.flaticon.com/128/3281/3281307.png',
-    'visualization': 'https://cdn-icons-png.flaticon.com/128/1055/1055666.png',
-    'report': 'https://cdn-icons-png.flaticon.com/128/3135/3135692.png',
-    'target': 'https://cdn-icons-png.flaticon.com/128/3207/3207594.png',
-    'medical_waste': 'https://cdn-icons-png.flaticon.com/128/2913/2913477.png',
-    'sewage': 'https://cdn-icons-png.flaticon.com/128/3076/3076129.png',
-    'amr': 'https://cdn-icons-png.flaticon.com/128/3774/3774299.png',
-    'warning': 'https://cdn-icons-png.flaticon.com/128/595/595067.png',
-    'checkmark': 'https://cdn-icons-png.flaticon.com/128/5610/5610944.png',
-}
+# Standard font settings for publication quality (Nature/PLOS style)
+plt.rcParams['font.family'] = 'sans-serif'
+plt.rcParams['font.sans-serif'] = ['Helvetica', 'Arial', 'DejaVu Sans']
+plt.rcParams['axes.labelweight'] = 'normal'
+plt.rcParams['axes.titleweight'] = 'bold'
+plt.rcParams['text.color'] = COLORS['text_dark']
 
-# Cache for downloaded icons
-icon_cache = {}
-
-def download_icon(name, url, cache_dir):
-    """Download an icon from URL and cache it locally."""
-    cache_path = os.path.join(cache_dir, f"{name}.png")
-    
-    # Check if already in memory cache
-    if name in icon_cache:
-        return icon_cache[name]
-    
-    # Check if already downloaded
-    if os.path.exists(cache_path):
-        try:
-            img = Image.open(cache_path).convert('RGBA')
-            icon_cache[name] = img
-            return img
-        except:
-            pass
-    
-    # Download from URL
-    try:
-        print(f"      Downloading icon: {name}...")
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
-        req = urllib.request.Request(url, headers=headers)
-        response = urllib.request.urlopen(req, timeout=10)
-        img_data = response.read()
-        img = Image.open(BytesIO(img_data)).convert('RGBA')
-        
-        # Save to cache
-        img.save(cache_path, 'PNG')
-        icon_cache[name] = img
-        return img
-    except Exception as e:
-        print(f"      Warning: Could not download {name} icon: {e}")
-        return None
-
-def download_all_icons(cache_dir):
-    """Download all required icons."""
-    os.makedirs(cache_dir, exist_ok=True)
-    print("   📥 Downloading icons...")
-    
-    for name, url in ICON_URLS.items():
-        download_icon(name, url, cache_dir)
-    
-    print("   ✓ Icons ready")
-
-def add_icon_to_plot(ax, icon_name, xy, zoom=0.3, cache_dir=None):
-    """Add an icon to the plot at specified coordinates."""
-    if cache_dir is None:
-        cache_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'icons')
-    
-    if icon_name not in icon_cache:
-        url = ICON_URLS.get(icon_name)
-        if url:
-            download_icon(icon_name, url, cache_dir)
-    
-    img = icon_cache.get(icon_name)
-    if img is None:
-        return None
-    
-    # Convert PIL image to numpy array
-    img_array = np.array(img)
-    
-    # Create offset image
-    imagebox = OffsetImage(img_array, zoom=zoom)
-    imagebox.image.axes = ax
-    
-    # Create annotation box
-    ab = AnnotationBbox(imagebox, xy, frameon=False, zorder=10)
-    ax.add_artist(ab)
-    
-    return ab
-
-def create_gradient_background(ax, color1='#FFFFFF', color2='#FFFFFF', color3='#FFFFFF'):
+def create_gradient_background(ax):
     """Create a solid white background for the plot."""
-    ax.set_facecolor('#FFFFFF')
+    ax.set_facecolor(COLORS['white'])
+
+def draw_scientific_symbol(ax, symbol_type, xy, size=0.4, color='black'):
+    """Draw abstract scientific symbols instead of icons."""
+    x, y = xy
+    if symbol_type == 'metagenomics':
+        # Abstract DNA helix
+        t = np.linspace(0, 4*np.pi, 20)
+        xs = np.sin(t) * 0.1 * size
+        ys = np.linspace(-0.5, 0.5, 20) * size
+        ax.plot(x + xs, y + ys, color=color, lw=1.5)
+        ax.plot(x - xs, y + ys, color=color, lw=1.5)
+        for i in range(0, 20, 2):
+            ax.plot([x - xs[i], x + xs[i]], [y + ys[i], y + ys[i]], color=color, lw=1)
+    elif symbol_type == 'wastewater':
+        # Fluid flow symbol
+        for i in range(3):
+            t = np.linspace(0, 1, 10)
+            xs = (t - 0.5) * size
+            ys = np.sin(t * 10 + i) * 0.05 * size
+            ax.plot(x + xs, y + ys + (i-1)*0.1*size, color=color, lw=1.5)
+    elif symbol_type == 'comparison':
+        # Scales/Balance
+        ax.plot([x - 0.3*size, x + 0.3*size], [y, y], color=color, lw=1.5)
+        ax.plot([x, x], [y, y - 0.4*size], color=color, lw=1.5)
+        ax.add_patch(mpatches.Circle((x-0.3*size, y-0.1*size), 0.1*size, color=color))
+        ax.add_patch(mpatches.Circle((x+0.3*size, y+0.1*size), 0.1*size, color=color))
+    elif symbol_type == 'domain':
+        # Simple circle for domain
+        ax.add_patch(mpatches.Circle((x, y), 0.3*size, color=color, fill=False, lw=1.5))
+
 
 def draw_glow_circle(ax, center, radius, color, alpha=0.3, layers=5):
     """Draw a glowing circle effect."""
@@ -160,333 +91,265 @@ def draw_glow_circle(ax, center, radius, color, alpha=0.3, layers=5):
     ax.add_patch(main_circle)
     return main_circle
 
-def draw_one_health_framework(ax, cache_dir):
-    """Draw the One Health interconnected framework."""
-    ax.set_xlim(-2, 12)
-    ax.set_ylim(-1, 9)
+def draw_one_health_framework(ax, font_scale=1.0):
+    """Figure 1: One Health Context of Antimicrobial Resistance."""
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 9)
     ax.set_aspect('equal')
     ax.axis('off')
     
     create_gradient_background(ax)
     
-    # Title
-    title = ax.text(5, 8.3, 'ONE HEALTH FRAMEWORK', fontsize=16, fontweight='bold',
-                   color='black', ha='center', va='center',
-                   fontfamily='sans-serif')
+    # Title - Center Aligned
+    ax.text(5, 8.8, 'ONE HEALTH CONTEXT OF AMR', fontsize=20*font_scale, fontweight='bold',
+            color=COLORS['text_dark'], ha='center', va='center')
     
     # Subtitle
-    ax.text(5, 7.7, 'Antimicrobial Resistance as an Interconnected Challenge', 
-            fontsize=9, color=COLORS['grey'], ha='center', fontweight='bold')
+    ax.text(5, 8.3, 'Wastewater integrates resistance signals across human, animal, and environmental systems', 
+            fontsize=10.5*font_scale, color=COLORS['text_grey'], ha='center', style='italic')
     
-    # Three main circles - Human, Animal, Environment
-    centers = [(2, 4.5), (8, 4.5), (5, 1.5)]
-    labels = ['HUMAN\nHEALTH', 'ANIMAL\nHEALTH', 'ENVIRONMENTAL\nHEALTH']
-    colors = [COLORS['human'], COLORS['animal'], COLORS['environment']]
-    icons = ['human', 'animal', 'environment']
+    # Domain Centers - Equilateral Triad (H, A, E)
+    H_center = (2.5, 5.0)
+    A_center = (7.5, 5.0)
+    E_center = (5.0, 2.0)
+    radius = 1.3
     
-    for center, label, color, icon in zip(centers, labels, colors, icons):
-        draw_glow_circle(ax, center, 1.2, color)
-        add_icon_to_plot(ax, icon, (center[0], center[1] + 0.2), zoom=0.35, cache_dir=cache_dir)
-        ax.text(center[0], center[1] - 0.7, label, fontsize=8, fontweight='bold',
-               color='white', ha='center', va='center', linespacing=1.2)
+    centers = [H_center, A_center, E_center]
+    labels = ['Human\nHealth', 'Animal\nHealth', 'Environmental\nHealth']
     
-    # Draw connecting arrows (bidirectional flows) - grey for visibility
-    # Human <-> Animal
-    ax.annotate('', xy=(6.6, 4.5), xytext=(3.4, 4.5),
-               arrowprops=dict(arrowstyle='->', color='#555555', lw=2, 
-                             connectionstyle='arc3,rad=0.2'))
-    ax.annotate('', xy=(3.4, 4.5), xytext=(6.6, 4.5),
-               arrowprops=dict(arrowstyle='->', color='#555555', lw=2,
-                             connectionstyle='arc3,rad=0.2'))
-    ax.text(5, 5.5, 'Zoonotic\nTransfer', fontsize=7, color=COLORS['grey'], 
-            ha='center', va='center', linespacing=1.1, fontweight='bold')
+    for center, label in zip(centers, labels):
+        ax.add_patch(Circle(center, radius, color=COLORS['neutral_light'], ec=COLORS['border'], lw=1.0, zorder=2))
+        ax.text(center[0], center[1], label, fontsize=12*font_scale, fontweight='normal',
+               color=COLORS['text_dark'], ha='center', va='center', zorder=3)
     
-    # Human <-> Environment
-    ax.annotate('', xy=(3.8, 2.2), xytext=(2.5, 3.2),
-               arrowprops=dict(arrowstyle='->', color='#555555', lw=2,
-                             connectionstyle='arc3,rad=0.2'))
-    ax.annotate('', xy=(2.5, 3.2), xytext=(3.8, 2.2),
-               arrowprops=dict(arrowstyle='->', color='#555555', lw=2,
-                             connectionstyle='arc3,rad=-0.2'))
-    ax.text(1.8, 2.5, 'Waste\nDischarge', fontsize=7, color=COLORS['grey'], 
-            ha='center', va='center', linespacing=1.1, fontweight='bold')
+    # Central Wastewater Interface - At the center of the triad
+    W_center = (5.0, 4.0)
+    W_radius = 1.5
+    ax.add_patch(Circle(W_center, W_radius, color=COLORS['wastewater'], alpha=0.1, ec=COLORS['wastewater'], lw=1.5, linestyle='--', zorder=1))
+    ax.text(W_center[0], W_center[1], 'Urban\nWastewater\nInterface', fontsize=13*font_scale, fontweight='bold',
+            color=COLORS['wastewater'], ha='center', va='center', zorder=4)
     
-    # Animal <-> Environment
-    ax.annotate('', xy=(6.2, 2.2), xytext=(7.5, 3.2),
-               arrowprops=dict(arrowstyle='->', color='#555555', lw=2,
-                             connectionstyle='arc3,rad=-0.2'))
-    ax.annotate('', xy=(7.5, 3.2), xytext=(6.2, 2.2),
-               arrowprops=dict(arrowstyle='->', color='#555555', lw=2,
-                             connectionstyle='arc3,rad=0.2'))
-    ax.text(8.2, 2.5, 'Agricultural\nRunoff', fontsize=7, color=COLORS['grey'], 
-            ha='center', va='center', linespacing=1.1, fontweight='bold')
+    # Bidirectional Connectors
+    arrow_props = dict(arrowstyle='<->', color=COLORS['neutral'], lw=1.0, mutation_scale=10)
+    # H-A
+    ax.annotate('', xy=(A_center[0]-radius-0.05, A_center[1]), xytext=(H_center[0]+radius+0.05, H_center[1]), arrowprops=arrow_props)
     
-    # Central AMR text
-    ax.text(5, 3.8, 'AMR', fontsize=14, fontweight='bold', color='white',
-            ha='center', va='center',
-            bbox=dict(boxstyle='round,pad=0.3', facecolor='#E74C3C', 
-                     edgecolor='#C0392B', linewidth=2))
+    # H-E / A-E Slanted connectors
+    h_to_e_v = np.array([2.5, -3.0]) / 3.905
+    ax.annotate('', xy=(E_center[0]-h_to_e_v[0]*radius, E_center[1]-h_to_e_v[1]*radius), 
+               xytext=(H_center[0]+h_to_e_v[0]*radius, H_center[1]+h_to_e_v[1]*radius), arrowprops=arrow_props)
+    
+    a_to_e_v = np.array([-2.5, -3.0]) / 3.905
+    ax.annotate('', xy=(E_center[0]-a_to_e_v[0]*radius, E_center[1]-a_to_e_v[1]*radius), 
+               xytext=(A_center[0]+a_to_e_v[0]*radius, A_center[1]+a_to_e_v[1]*radius), arrowprops=arrow_props)
+    
+    # Connector labels - FIXED: Horizontal orientation for cleaner look
+    ax.text(5, 5.2, 'Interspecies spillover', fontsize=9.5*font_scale, color=COLORS['text_grey'], ha='center')
+    ax.text(2.6, 3.2, 'Anthropogenic\ninputs', fontsize=9.5*font_scale, color=COLORS['text_grey'], ha='center')
+    ax.text(7.4, 3.2, 'Ecological\ncycling', fontsize=9.5*font_scale, color=COLORS['text_grey'], ha='center')
+    
+    # Bottom Caption
+    ax.text(5, 0.4, 'AMR as an interconnected, system-level challenge', 
+            fontsize=10*font_scale, color=COLORS['text_grey'], ha='center', style='italic')
 
-def draw_wastewater_sources(ax, cache_dir):
-    """Draw the urban wastewater source diagram."""
-    ax.set_xlim(-1, 11)
-    ax.set_ylim(-1, 9)
+
+def draw_wastewater_sources(ax, font_scale=1.0):
+    """Figure 2: Urban Wastewater as a Population-Level AMR Matrix."""
+    ax.set_xlim(0, 10)
+    ax.set_ylim(2, 9) # Tightened limits to remove white space
     ax.axis('off')
     
     create_gradient_background(ax)
     
     # Title
-    title = ax.text(5, 8.3, 'URBAN WASTEWATER: A Population-Level AMR Matrix', 
-                   fontsize=14, fontweight='bold', color='black', ha='center')
+    ax.text(5, 8.8, 'WASTEWATER AS A POPULATION MATRIX', 
+            fontsize=18*font_scale, fontweight='bold', color=COLORS['text_dark'], ha='center')
     
-    ax.text(5, 7.7, 'Tier-2 Indian Cities: Mixed Land Use & Incomplete Infrastructure',
-            fontsize=9, color=COLORS['grey'], ha='center', fontweight='bold')
+    # Subtitle
+    ax.text(5, 8.4, 'Population-level integration of antimicrobial resistance signals',
+            fontsize=11*font_scale, color=COLORS['text_grey'], ha='center', style='italic')
     
-    # Source boxes at top
+    # Input boxes
+    box_w, box_h = 2.4, 1.2
+    y_in = 6.8
     sources = [
-        (1.5, 5.5, 'household', 'Households', COLORS['municipal']),
-        (5, 5.5, 'hospital', 'Healthcare\nFacilities', COLORS['medical']),
-        (8.5, 5.5, 'industry', 'Industrial\nAreas', COLORS['infrastructure'])
+        (1.5, y_in, 'Community\nHouseholds', COLORS['non_medical']),
+        (5, y_in, 'Healthcare\nFacilities', COLORS['medical']),
+        (8.5, y_in, 'Other Urban\nActivities', COLORS['non_medical'])
     ]
     
-    for x, y, icon, label, color in sources:
-        # Glowing box
-        for i in range(3, 0, -1):
-            rect = FancyBboxPatch((x-0.9-i*0.1, y-0.7-i*0.1), 1.8+i*0.2, 1.4+i*0.2,
-                                 boxstyle="round,pad=0.1", 
-                                 facecolor=color, alpha=0.1, zorder=1)
-            ax.add_patch(rect)
-        
-        rect = FancyBboxPatch((x-0.9, y-0.7), 1.8, 1.4,
-                             boxstyle="round,pad=0.1", 
-                             facecolor=color, alpha=0.9, edgecolor='#2C3E50', 
-                             linewidth=2, zorder=2)
+    for x, y, label, color in sources:
+        rect = FancyBboxPatch((x-box_w/2, y-box_h/2), box_w, box_h, boxstyle="round,pad=0.1", 
+                             facecolor=color, alpha=0.8, edgecolor=COLORS['border'], 
+                             linewidth=0.8, zorder=2)
         ax.add_patch(rect)
-        
-        # Icon above, text below with proper spacing
-        add_icon_to_plot(ax, icon, (x, y+0.25), zoom=0.25, cache_dir=cache_dir)
-        ax.text(x, y-0.35, label, fontsize=7, fontweight='bold', color='white',
-               ha='center', va='center', zorder=3, linespacing=1.0)
+        ax.text(x, y, label, fontsize=10*font_scale, fontweight='normal', 
+               color='white' if color != COLORS['neutral_light'] else COLORS['text_dark'],
+               ha='center', va='center', zorder=3)
     
-    # Arrows flowing down - grey for visibility
+    # Symmetrical Connectors
+    arrow_props = dict(arrowstyle='->', color=COLORS['neutral'], lw=1.2, mutation_scale=10)
     for x in [1.5, 5, 8.5]:
-        ax.annotate('', xy=(x, 3.8), xytext=(x, 4.6),
-                   arrowprops=dict(arrowstyle='->', color='#555555', lw=2.5))
+        start_x, start_y = x, y_in - box_h/2 - 0.05
+        target_x = 4.0 if x == 1.5 else (6.0 if x == 8.5 else 5.0)
+        target_y = 5.2 # Higher target to bridge the gap
+        ax.annotate('', xy=(target_x, target_y), xytext=(start_x, start_y), arrowprops=arrow_props)
     
-    # Central wastewater collection
-    wastewater_box = FancyBboxPatch((1.5, 2.2), 7, 1.5,
-                                    boxstyle="round,pad=0.15",
-                                    facecolor='#1ABC9C', alpha=0.9,
-                                    edgecolor='#16A085', linewidth=3, zorder=2)
-    ax.add_patch(wastewater_box)
+    # Wastewater focus
+    ax.add_patch(FancyBboxPatch((2, 3.2), 6, 2.0, boxstyle="round,pad=0.1",
+                                    facecolor=COLORS['wastewater'], alpha=0.1,
+                                    edgecolor=COLORS['wastewater'], lw=1.5, zorder=1))
     
-    # Icon on left, text on right to avoid overlap
-    add_icon_to_plot(ax, 'water', (2.5, 3.0), zoom=0.3, cache_dir=cache_dir)
-    ax.text(5.8, 3.0, 'URBAN WASTEWATER', fontsize=11, fontweight='bold',
-           color='white', ha='center', zorder=3)
+    ax.text(5, 4.4, 'URBAN WASTEWATER SYSTEM', fontsize=14*font_scale, fontweight='bold',
+           color=COLORS['wastewater'], ha='center', zorder=3)
+    ax.text(5, 3.9, 'Integrated Biological Matrix', fontsize=11*font_scale,
+           color=COLORS['text_grey'], ha='center', fontweight='normal', zorder=3)
+    ax.text(5, 3.5, 'Aggregated Population Signals', fontsize=10*font_scale,
+           color=COLORS['text_grey'], ha='center', style='italic', zorder=3)
     
-    # Arrow to metagenomic analysis - grey for visibility
-    ax.annotate('', xy=(5, 0.9), xytext=(5, 2.0),
-               arrowprops=dict(arrowstyle='->', color='#555555', lw=2.5))
-    
-    # Metagenomic analysis box
-    analysis_box = FancyBboxPatch((2, -0.2), 6, 1.2,
-                                  boxstyle="round,pad=0.1",
-                                  facecolor='#E056FD', alpha=0.9,
-                                  edgecolor='#9B59B6', linewidth=2, zorder=2)
-    ax.add_patch(analysis_box)
-    
-    # Icon on left side, text on right to avoid overlap
-    add_icon_to_plot(ax, 'dna', (2.7, 0.4), zoom=0.22, cache_dir=cache_dir)
-    ax.text(5.8, 0.55, 'METAGENOMIC ANALYSIS', fontsize=10, fontweight='bold',
-           color='white', ha='center', zorder=3)
-    ax.text(5.8, 0.1, 'ARG Profiling & Resistome Characterization', fontsize=7,
-           color='white', ha='center', zorder=3, alpha=0.9)
+    # Caption
+    ax.text(5, 2.4, 'Reflects aggregated urban resistance pressure, not individual risk', 
+            fontsize=10*font_scale, color=COLORS['text_grey'], ha='center', style='italic')
 
-def draw_comparison_framework(ax, cache_dir):
-    """Draw the medical vs non-medical wastewater comparison."""
-    ax.set_xlim(-1, 11)
-    ax.set_ylim(-1, 9)
+
+def draw_tier_2_context(ax, font_scale=1.0):
+    """Figure 3: Tier-2 Indian Urban Context Visualization."""
+    ax.set_xlim(0, 10)
+    ax.set_ylim(1, 9) # Tightened limits
     ax.axis('off')
     
     create_gradient_background(ax)
     
     # Title
-    title = ax.text(5, 8.3, 'COMPARATIVE ANALYSIS FRAMEWORK',
-                   fontsize=14, fontweight='bold', color='black', ha='center')
+    ax.text(5, 8.8, 'TIER-2 URBAN WASTEWATER PROFILE', 
+            fontsize=18*font_scale, fontweight='bold', color=COLORS['text_dark'], ha='center')
     
-    ax.text(5, 7.7, 'Medical-Influenced vs Non-Medical Wastewater',
-            fontsize=10, color=COLORS['grey'], ha='center', fontweight='bold')
+    ax.text(5, 8.3, 'Characterizing the vulnerability of under-studied urban centers',
+            fontsize=11*font_scale, color=COLORS['text_grey'], ha='center', style='italic')
     
-    # Left side - Medical
-    medical_box = FancyBboxPatch((0.5, 3), 4, 4,
-                                 boxstyle="round,pad=0.2",
-                                 facecolor=COLORS['medical'], alpha=0.15,
-                                 edgecolor=COLORS['medical'], linewidth=3)
-    ax.add_patch(medical_box)
-    
-    # Icon at top of box, text below with proper spacing
-    add_icon_to_plot(ax, 'medical_waste', (2.5, 6.6), zoom=0.35, cache_dir=cache_dir)
-    ax.text(2.5, 5.85, 'MEDICAL', fontsize=11, fontweight='bold',
-           color='black', ha='center')
-    ax.text(2.5, 5.5, 'WASTEWATER', fontsize=11, fontweight='bold',
-           color='black', ha='center')
-    
-    medical_items = [
-        '• Hospital effluents',
-        '• Antibiotic residues',
-        '• Clinical waste streams',
-        '• High ARG concentration'
+    # Descriptive Layers
+    layers = [
+        (6.5, 'MIXED LAND USE PATTERNS', 'Co-existence of residential, commercial,\nand healthcare zones in close proximity', COLORS['neutral_light']),
+        (4.5, 'PARTIAL INFRASTRUCTURE', 'Non-unified sewage networks leading to\ndirect healthcare waste entry points', COLORS['non_medical']),
+        (2.5, 'WASTE CONVERGENCE', 'Aggregated signals from clinical and\nmunicipal sources in a single matrix', COLORS['medical'])
     ]
-    for i, item in enumerate(medical_items):
-        ax.text(2.5, 4.9 - i*0.45, item, fontsize=8, color='black', 
-               ha='center')
     
-    # Right side - Non-Medical
-    municipal_box = FancyBboxPatch((5.5, 3), 4, 4,
-                                   boxstyle="round,pad=0.2",
-                                   facecolor=COLORS['municipal'], alpha=0.15,
-                                   edgecolor=COLORS['municipal'], linewidth=3)
-    ax.add_patch(municipal_box)
+    for y, title, desc, color in layers:
+        # Box for title
+        ax.add_patch(FancyBboxPatch((1.0, y-1.0), 3.0, 1.2, boxstyle="round,pad=0.1",
+                                    facecolor=color, alpha=0.8, ec=COLORS['border'], lw=1.0))
+        ax.text(2.5, y-0.4, title, fontsize=10*font_scale, fontweight='bold', color=COLORS['text_dark'] if color==COLORS['neutral_light'] else 'white', ha='center', va='center')
+        
+        # Annotation for description
+        ax.text(4.5, y-0.4, desc, fontsize=10.5*font_scale, color=COLORS['text_dark'], ha='left', va='center')
+        
+        # Connection line
+        ax.plot([4.0, 4.3], [y-0.4, y-0.4], color=COLORS['neutral'], lw=1.0)
     
-    # Icon at top of box, text below with proper spacing
-    add_icon_to_plot(ax, 'sewage', (7.5, 6.6), zoom=0.35, cache_dir=cache_dir)
-    ax.text(7.5, 5.85, 'NON-MEDICAL', fontsize=11, fontweight='bold',
-           color='black', ha='center')
-    ax.text(7.5, 5.5, 'WASTEWATER', fontsize=11, fontweight='bold',
-           color='black', ha='center')
-    
-    municipal_items = [
-        '• Household sewage',
-        '• Community waste',
-        '• Agricultural runoff',
-        '• Baseline ARG levels'
-    ]
-    for i, item in enumerate(municipal_items):
-        ax.text(7.5, 4.9 - i*0.45, item, fontsize=8, color='black',
-               ha='center')
-    
-    # VS symbol
-    vs_circle = Circle((5, 5.2), 0.5, facecolor='#E74C3C', 
-                       edgecolor='#C0392B', linewidth=2, zorder=10)
-    ax.add_patch(vs_circle)
-    ax.text(5, 5.2, 'VS', fontsize=10, fontweight='bold', color='white',
-           ha='center', va='center', zorder=11)
-    
-    # Bottom analysis output
-    output_box = FancyBboxPatch((1, 0.2), 8, 2.2,
-                                boxstyle="round,pad=0.15",
-                                facecolor='#ECF0F1', alpha=1.0,
-                                edgecolor='#1ABC9C', linewidth=2)
-    ax.add_patch(output_box)
-    
-    # Icon on left side, text on right to avoid overlap
-    add_icon_to_plot(ax, 'chart', (1.7, 1.3), zoom=0.28, cache_dir=cache_dir)
-    ax.text(5.5, 1.95, 'ANALYSIS OUTPUTS', fontsize=10, fontweight='bold',
-           color='#1ABC9C', ha='center')
-    
-    outputs = [
-        '• Differential ARG abundance profiles',
-        '• Resistance gene diversity metrics',
-        '• Ecological population-level patterns'
-    ]
-    for i, out in enumerate(outputs):
-        ax.text(5.5, 1.4 - i*0.35, out, fontsize=8, color='black', ha='center')
+    # Concluding line
+    ax.text(5, 1.2, 'Epidemiological relevance of incomplete waste segregation', 
+            fontsize=10*font_scale, color=COLORS['text_grey'], ha='center', style='italic')
 
-def draw_analysis_pipeline(ax, cache_dir):
-    """Draw the bioinformatics analysis pipeline."""
-    ax.set_xlim(-1, 11)
-    ax.set_ylim(-1, 9)
+def draw_comparison_framework(ax, font_scale=1.0):
+    """Figure 4: Comparative Study Logic."""
+    ax.set_xlim(0, 10)
+    ax.set_ylim(1, 9) # Tightened limits
     ax.axis('off')
     
     create_gradient_background(ax)
     
     # Title
-    title = ax.text(5, 8.3, 'BIOINFORMATICS ANALYSIS PIPELINE',
-                   fontsize=14, fontweight='bold', color='black', ha='center')
+    ax.text(5, 8.8, 'COMPARATIVE STUDY LOGIC',
+            fontsize=18*font_scale, fontweight='bold', color=COLORS['text_dark'], ha='center')
     
-    ax.text(5, 7.7, 'Reproducible Computational Framework for Wastewater AMR Analysis',
-            fontsize=9, color=COLORS['grey'], ha='center', fontweight='bold')
+    ax.text(5, 8.4, 'Evaluating differential resistance signatures across urban contexts',
+            fontsize=11*font_scale, color=COLORS['text_grey'], ha='center', style='italic')
+    
+    # Center Separator
+    ax.text(5, 4.8, 'Comparative\nEcological\nAnalysis', fontsize=11*font_scale, fontweight='bold',
+           color=COLORS['neutral'], ha='center', va='center', 
+           bbox=dict(boxstyle='circle,pad=0.5', facecolor=COLORS['white'], edgecolor=COLORS['neutral'], lw=1.2))
+    
+    # Comparison Panels
+    box_w, box_h = 4.2, 4.8
+    panels = [
+        (0.5, 2.4, 'Medical-influenced\nWastewater', COLORS['medical'], 
+         ['• Proximity to healthcare centers', '• Elevated antibiotic residues', '• Differentiated ARG profiles', '• Hospital point-source impact']),
+        (5.3, 2.4, 'Non-medical\nWastewater', COLORS['non_medical'], 
+         ['• General community baseline', '• Lower clinical drug exposure', '• Background residential signal', '• Baseline urban ARG signature'])
+    ]
+    
+    for x, y, title, color, points in panels:
+        ax.add_patch(FancyBboxPatch((x, y), box_w, box_h, boxstyle="round,pad=0.1",
+                                     facecolor=color, alpha=0.08, ec=color, lw=2.0))
+        ax.text(x+box_w/2, y+box_h-0.5, title, fontsize=13*font_scale, fontweight='bold', color=color, ha='center')
+        
+        for i, pt in enumerate(points):
+            ax.text(x+0.4, y+box_h-1.3 - i*0.8, pt, fontsize=10.5*font_scale, color=COLORS['text_dark'], ha='left')
+    
+    # Footnote
+    ax.text(5, 1.8, 'Focus: Resistance patterns, not individual source causality', 
+            fontsize=10*font_scale, color=COLORS['text_grey'], ha='center', style='italic')
+
+
+def draw_analysis_pipeline(ax, font_scale=1.0):
+    """Figure 5: Analytical and Interpretation Framework Visualization."""
+    ax.set_xlim(0, 10)
+    ax.set_ylim(1, 9) # Tightened limits
+    ax.axis('off')
+    
+    create_gradient_background(ax)
+    
+    # Title
+    ax.text(5, 8.8, 'ANALYTICAL & INTERPRETATION FRAMEWORK',
+            fontsize=18*font_scale, fontweight='bold', color=COLORS['text_dark'], ha='center')
     
     # Pipeline steps
     steps = [
-        (1.5, 6, 'database', 'PUBLIC\nDATASETS', '#3498DB', 'Metagenomic\nsequences'),
-        (5, 6, 'filter', 'QUALITY\nCONTROL', '#9B59B6', 'Filtering &\nPreprocessing'),
-        (8.5, 6, 'bacteria', 'ARG\nPROFILING', '#E74C3C', 'Resistance gene\nidentification'),
-        (1.5, 2.5, 'chart', 'STATISTICAL\nANALYSIS', '#27AE60', 'Comparative\nmetrics'),
-        (5, 2.5, 'visualization', 'VISUALIZATION', '#F39C12', 'Interactive\nplots'),
-        (8.5, 2.5, 'report', 'INTERPRETATION', '#1ABC9C', 'One Health\ncontext')
+        ('1. DATA ACQUISITION', 'Secondary analysis of\nmetagenomic FASTQ sets'),
+        ('2. ARG ANNOTATION', 'Bioinformatics identification\n(CARD / ResFinder)'),
+        ('3. COMPARISON', 'Differential abundance and\ndiversity metrics'),
+        ('4. INTERPRETATION', 'One Health ecological\nsignal characterization')
     ]
     
-    for x, y, icon, label, color, desc in steps:
-        # Glowing effect
-        for i in range(3, 0, -1):
-            circle = Circle((x, y), 1.1 + i*0.1, facecolor=color, alpha=0.1)
-            ax.add_patch(circle)
+    y_start = 6.8
+    for i, (title, desc) in enumerate(steps):
+        # Arrow from previous
+        if i > 0:
+            ax.annotate('', xy=(1.5 + i*2.3, y_start), xytext=(0.9 + i*2.3, y_start), 
+                       arrowprops=dict(arrowstyle='->', color=COLORS['neutral'], lw=1.2))
         
-        circle = Circle((x, y), 1.1, facecolor=color, alpha=0.9,
-                        edgecolor='#2C3E50', linewidth=2)
-        ax.add_patch(circle)
-        
-        # Icon centered, text below icon inside circle
-        add_icon_to_plot(ax, icon, (x, y+0.35), zoom=0.25, cache_dir=cache_dir)
-        ax.text(x, y-0.45, label, fontsize=7, fontweight='bold', color='white',
-               ha='center', va='center', linespacing=0.9)
-        
-        # Only show description text for top row (y=6), not bottom row to avoid overlap
-        if y > 4:
-            ax.text(x, y-1.5, desc, fontsize=5, color=COLORS['grey'],
-                   ha='center', va='center', linespacing=0.9, fontweight='bold')
+        # Step box
+        ax.add_patch(FancyBboxPatch((0.4 + i*2.3, y_start-0.8), 2.0, 1.6, boxstyle="round,pad=0.1",
+                                    facecolor=COLORS['neutral_light'], ec=COLORS['border'], lw=0.8))
+        ax.text(1.4 + i*2.3, y_start+0.2, title, fontsize=9*font_scale, fontweight='bold', ha='center')
+        ax.text(1.4 + i*2.3, y_start-0.3, desc, fontsize=8.5*font_scale, color=COLORS['text_grey'], ha='center')
     
-    # Arrows between steps - using grey color for visibility on white bg
-    arrow_props = dict(arrowstyle='->', color='#555555', lw=2, 
-                      mutation_scale=15)
+    # Interpretation Constraint Box
+    ax.add_patch(FancyBboxPatch((1.5, 3.0), 7, 2.0, boxstyle="round,pad=0.2",
+                                 facecolor=COLORS['medical'], alpha=0.03, ec=COLORS['medical'], lw=1.2, linestyle='--'))
     
-    # Top row - left to right (adjusted for larger circles)
-    ax.annotate('', xy=(3.8, 6), xytext=(2.7, 6), arrowprops=arrow_props)
-    ax.annotate('', xy=(7.3, 6), xytext=(6.2, 6), arrowprops=arrow_props)
+    ax.text(5, 4.2, 'CORE INTERPRETATIVE LIMITATION', fontsize=11*font_scale, fontweight='bold', color=COLORS['medical'], ha='center')
+    ax.text(5, 3.6, '“Analysis constrained to population-level ecological patterns”', 
+           fontsize=12*font_scale, color=COLORS['medical'], ha='center', fontweight='normal', style='italic')
+    ax.text(5, 3.1, 'No clinical diagnostics, causal inference, or individual-level risk assessment',
+           fontsize=9*font_scale, color=COLORS['text_grey'], ha='center')
     
-    # Down arrow from ARG Profiling to Interpretation - on right side
-    ax.annotate('', xy=(9.5, 3.7), xytext=(9.5, 4.9), 
-               arrowprops=dict(arrowstyle='->', color='#555555', lw=2,
-                             connectionstyle='arc3,rad=0'))
-    
-    # Bottom row - right to left (adjusted for larger circles)
-    ax.annotate('', xy=(6.2, 2.5), xytext=(7.3, 2.5), arrowprops=arrow_props)
-    ax.annotate('', xy=(2.7, 2.5), xytext=(3.8, 2.5), arrowprops=arrow_props)
-    
-    # Arrows from bottom row to Framework box - positioned on sides to avoid overlap
-    # Left arrow from Statistical Analysis
-    ax.annotate('', xy=(2.2, 0.65), xytext=(1.5, 1.3),
-               arrowprops=dict(arrowstyle='->', color='#555555', lw=2))
-    # Right arrow from Interpretation
-    ax.annotate('', xy=(7.8, 0.65), xytext=(8.5, 1.3),
-               arrowprops=dict(arrowstyle='->', color='#555555', lw=2))
-    
-    # Final Framework Output Box
-    framework_box = FancyBboxPatch((1.8, -0.3), 6.4, 0.9,
-                                   boxstyle="round,pad=0.1",
-                                   facecolor='#667eea', alpha=0.95,
-                                   edgecolor='#4834d4', linewidth=2)
-    ax.add_patch(framework_box)
-    
-    ax.text(5, 0.15, 'REPRODUCIBLE AMR SURVEILLANCE FRAMEWORK', fontsize=8, fontweight='bold',
-           color='white', ha='center')
-    
-    # Key features as a simple text line at bottom
-    ax.text(5, -0.6, 'Reproducible • Open Data • Ecological Focus • One Health Context',
-           fontsize=7, color=COLORS['grey'], ha='center', fontweight='bold')
+    # Footnote
+    ax.text(5, 1.8, 'Workflow optimized for characterization of secondary datasets', 
+            fontsize=10*font_scale, color=COLORS['text_grey'], ha='center', style='italic')
 
-def create_full_visualization(cache_dir):
-    """Create the complete 4-panel visualization."""
+
+def create_full_visualization():
+    """Create the complete 4-panel publication-grade visualization."""
     fig = plt.figure(figsize=(16, 14))
-    fig.patch.set_facecolor('#FFFFFF')
+    fig.patch.set_facecolor(COLORS['white'])
     
     # Main title
-    fig.suptitle('AMR Surveillance Using Wastewater Metagenomics', 
-                 fontsize=22, fontweight='bold', color='black', y=0.98)
-    fig.text(0.5, 0.95, 'Visual Synopsis: Medical Waste Influence on ARG Patterns in Tier-2 Indian Cities',
-             fontsize=12, color=COLORS['grey'], ha='center', fontweight='bold')
+    fig.suptitle('AMR SURVEILLANCE IN URBAN WASTEWATER', 
+                 fontsize=22, fontweight='bold', color=COLORS['text_dark'], y=0.98)
+    fig.text(0.5, 0.95, 'Analytical Framework for Assessing Medical Waste Influence on Resistance Patterns',
+             fontsize=13, color=COLORS['text_grey'], ha='center', fontweight='bold')
     
     # Create 2x2 grid
     ax1 = fig.add_subplot(2, 2, 1)
@@ -495,240 +358,183 @@ def create_full_visualization(cache_dir):
     ax4 = fig.add_subplot(2, 2, 4)
     
     # Draw each panel
-    draw_one_health_framework(ax1, cache_dir)
-    draw_wastewater_sources(ax2, cache_dir)
-    draw_comparison_framework(ax3, cache_dir)
-    draw_analysis_pipeline(ax4, cache_dir)
+    draw_one_health_framework(ax1)
+    draw_wastewater_sources(ax2)
+    draw_comparison_framework(ax3)
+    draw_analysis_pipeline(ax4)
     
     # Add panel labels
     panels = [(ax1, 'A'), (ax2, 'B'), (ax3, 'C'), (ax4, 'D')]
     for ax, label in panels:
         ax.text(-0.02, 0.98, label, transform=ax.transAxes, fontsize=16,
-               fontweight='bold', color='#667eea', va='top',
-               bbox=dict(boxstyle='circle,pad=0.3', facecolor='#ECF0F1', 
-                        edgecolor='#667eea', linewidth=2))
+               fontweight='bold', color=COLORS['text_dark'], va='top',
+               bbox=dict(boxstyle='circle,pad=0.3', facecolor=COLORS['neutral_light'], 
+                        edgecolor=COLORS['border'], linewidth=1.5))
     
-    plt.tight_layout(rect=[0, 0.02, 1, 0.93])
+    plt.tight_layout(rect=[0, 0.05, 1, 0.94])
     
     return fig
 
 def create_arg_heatmap_concept():
-    """Create a conceptual ARG heatmap visualization."""
-    fig, ax = plt.subplots(figsize=(12, 8))
-    fig.patch.set_facecolor('#FFFFFF')
-    ax.set_facecolor('#FFFFFF')
+    """Create a refined conceptual ARG heatmap visualization."""
+    fig, ax = plt.subplots(figsize=(10, 7))
+    fig.patch.set_facecolor(COLORS['white'])
+    ax.set_facecolor(COLORS['white'])
     
-    # Simulated ARG data
-    np.random.seed(42)
-    
-    arg_classes = [
-        'Beta-lactamase', 'Aminoglycoside', 'Tetracycline', 
-        'Fluoroquinolone', 'Macrolide', 'Sulfonamide',
-        'Multidrug efflux', 'Vancomycin', 'Colistin', 'Carbapenem'
+    # Aggregated conceptual data
+    arg_mechanisms = [
+        'Beta-lactam resistance', 'Aminoglycoside resistance', 
+        'Tetracycline resistance', 'Fluoroquinolone resistance', 
+        'Macrolide-Lincosamide-Streptogramin', 'Sulfonamide resistance',
+        'Multidrug efflux pumps', 'Glycopeptide resistance', 
+        'Polymyxin resistance', 'Carbapenems (High-priority)'
     ]
     
-    sample_types = ['Hospital\nSite 1', 'Hospital\nSite 2', 'Hospital\nSite 3',
-                   'Municipal\nSite 1', 'Municipal\nSite 2', 'Municipal\nSite 3']
+    sample_groups = ['Medical-influenced\nWastewater (Aggregated)', 'Non-medical\nWastewater (Aggregated)']
     
-    # Generate data (higher values for hospital samples)
-    medical_data = np.random.uniform(0.5, 1.0, (10, 3))
-    municipal_data = np.random.uniform(0.0, 0.5, (10, 3))
-    data = np.hstack([medical_data, municipal_data])
+    # Generate conceptual data (higher for medical)
+    np.random.seed(42)
+    medical_vals = np.array([0.9, 0.7, 0.6, 0.8, 0.5, 0.6, 0.9, 0.4, 0.3, 0.8])
+    non_med_vals = np.array([0.4, 0.3, 0.5, 0.2, 0.3, 0.4, 0.6, 0.1, 0.1, 0.2])
+    data = np.vstack([medical_vals, non_med_vals]).T
     
-    # Create custom colormap
-    colors = ['#1a1a2e', '#3a3a5e', '#667eea', '#E056FD', '#FF6B6B']
-    cmap = LinearSegmentedColormap.from_list('amr', colors)
+    # Create scientific colormap (Purples/Blues)
+    cmap = LinearSegmentedColormap.from_list('scientific_amr', 
+                                            [COLORS['neutral_light'], COLORS['non_medical'], COLORS['medical']])
     
     # Plot heatmap
     im = ax.imshow(data, cmap=cmap, aspect='auto', vmin=0, vmax=1)
     
     # Configure axes
-    ax.set_xticks(range(6))
-    ax.set_xticklabels(sample_types, fontsize=10, color='black')
+    ax.set_xticks(range(2))
+    ax.set_xticklabels(sample_groups, fontsize=12, fontweight='bold', color=COLORS['text_dark'])
     ax.set_yticks(range(10))
-    ax.set_yticklabels(arg_classes, fontsize=10, color='black')
+    ax.set_yticklabels(arg_mechanisms, fontsize=12, color=COLORS['text_dark'])
+    
+    # Remove ticks
+    ax.tick_params(axis='both', which='both', length=0)
     
     # Add colorbar
-    cbar = plt.colorbar(im, ax=ax, shrink=0.8)
-    cbar.set_label('Relative ARG Abundance', color='black', fontsize=11)
-    cbar.ax.yaxis.set_tick_params(color='black')
-    plt.setp(plt.getp(cbar.ax.axes, 'yticklabels'), color='black')
+    cbar = plt.colorbar(im, ax=ax, shrink=0.7)
+    cbar.set_label('Relative Abundance (Normalized)', color=COLORS['text_dark'], fontsize=12)
+    cbar.outline.set_visible(False)
     
-    # Add dividing line between medical and municipal
-    ax.axvline(x=2.5, color='#FFD93D', linewidth=3, linestyle='--')
+    # Annotation
+    ax.text(0.5, -0.9, 'Illustrative representation of expected differential patterns', 
+            fontsize=11, color=COLORS['text_grey'], ha='center', style='italic', transform=ax.transAxes)
     
-    # Labels for regions - positioned at top of heatmap
-    ax.text(1, -0.8, 'MEDICAL-INFLUENCED', fontsize=10, fontweight='bold',
-           color=COLORS['medical'], ha='center')
-    ax.text(4, -0.8, 'NON-MEDICAL', fontsize=10, fontweight='bold',
-           color=COLORS['municipal'], ha='center')
+    # Title
+    ax.set_title('COMPARATIVE ARG PROFILING (CONCEPTUAL)', fontsize=16, 
+                fontweight='bold', color=COLORS['text_dark'], pad=40)
     
-    # Title - with more padding
-    ax.set_title('Conceptual ARG Abundance Heatmap', fontsize=16, 
-                fontweight='bold', color='black', pad=40)
-    ax.text(2.5, 10.8, 'Expected differential pattern between wastewater types',
-           fontsize=10, color=COLORS['grey'], ha='center', fontweight='bold')
-    
-    # Add grid
-    ax.set_xticks(np.arange(-0.5, 6, 1), minor=True)
-    ax.set_yticks(np.arange(-0.5, 10, 1), minor=True)
-    ax.grid(which='minor', color='#BDC3C7', linestyle='-', linewidth=0.5)
+    # Borders
+    for spine in ax.spines.values():
+        spine.set_visible(False)
     
     plt.tight_layout()
     return fig
 
-def create_study_design_flowchart(cache_dir):
-    """Create a study design flowchart."""
-    fig, ax = plt.subplots(figsize=(14, 10))
-    fig.patch.set_facecolor('#FFFFFF')
-    ax.set_facecolor('#FFFFFF')
+
+def draw_study_design_flowchart(ax, font_scale=1.0):
+    """Draw the refined study design flowchart."""
+    ax.set_facecolor(COLORS['white'])
     ax.set_xlim(0, 14)
-    ax.set_ylim(0, 10)
+    ax.set_ylim(0, 10.5)
     ax.axis('off')
     
     # Title
-    title = ax.text(7, 9.5, 'STUDY DESIGN OVERVIEW', fontsize=18, fontweight='bold',
-                   color='black', ha='center')
+    ax.text(7, 10.2, 'STUDY DESIGN OVERVIEW', fontsize=22*font_scale, fontweight='bold',
+            color=COLORS['text_dark'], ha='center')
     
-    # Research Question Box
-    rq_box = FancyBboxPatch((2, 7.8), 10, 1.2, boxstyle="round,pad=0.15",
-                            facecolor='#E74C3C', alpha=0.9,
-                            edgecolor='#C0392B', linewidth=2)
-    ax.add_patch(rq_box)
-    add_icon_to_plot(ax, 'target', (2.8, 8.4), zoom=0.22, cache_dir=cache_dir)
-    ax.text(7.2, 8.55, 'RESEARCH QUESTION', fontsize=11, fontweight='bold',
-           color='white', ha='center')
-    ax.text(7.2, 8.1, 'How does medical waste influence ARG patterns in Tier-2 Indian city wastewater?',
-           fontsize=9, color='white', ha='center')
+    # Study Design Steps
+    steps = [
+        (2.5, 8.5, 'RESEARCH QUESTION', 'Characterizing antibiotic resistance gene (ARG) patterns\nin relation to medical waste influence using aggregated signals'),
+        (2.5, 6.8, 'DATA ACQUISITION', 'Secondary analysis of publicly available metagenomic datasets\nfrom diverse Indian urban wastewater contexts'),
+        (2.5, 5.1, 'BIOINFORMATICS', 'Standardized QC, ARG identification (CARD/ResFinder),\nand taxonomic profiling using open-source workflows'),
+        (2.5, 3.4, 'STATISTICAL ANALYSIS', 'Comparative abundance analysis, alpha/beta diversity metrics,\nand non-causal correlation testing'),
+        (2.5, 1.7, 'INTERPRETATION', 'One Health contextualization constrained to\npopulation-level ecological patterns')
+    ]
     
-    # Arrow down
-    ax.annotate('', xy=(7, 7.1), xytext=(7, 7.65),
-               arrowprops=dict(arrowstyle='->', color='#FFD93D', lw=3))
+    for i, (x_start, y_start, label, desc) in enumerate(steps):
+        # Step label box
+        ax.add_patch(FancyBboxPatch((x_start-1.5, y_start-0.45), 3, 0.9, boxstyle="round,pad=0.1",
+                                    facecolor=COLORS['neutral'], alpha=0.9,
+                                    edgecolor=COLORS['border'], linewidth=1.1*font_scale))
+        ax.text(x_start, y_start, label, fontsize=11*font_scale, fontweight='bold',
+                color='white', ha='center', va='center')
+        
+        # Description box
+        ax.add_patch(FancyBboxPatch((x_start+2, y_start-0.65), 8.5, 1.3, boxstyle="round,pad=0.1",
+                                    facecolor=COLORS['white'], edgecolor=COLORS['neutral'], linewidth=1))
+        ax.text(x_start+6.25, y_start, desc, fontsize=11.5*font_scale, color=COLORS['text_dark'], ha='center', va='center')
+        
+        # Connection arrow to next step
+        if i < len(steps) - 1:
+            ax.annotate('', xy=(x_start, y_start - 1.0), xytext=(x_start, y_start - 0.5),
+                       arrowprops=dict(arrowstyle='->', color=COLORS['neutral'], lw=2.0))
     
-    # Data Sources
-    data_box = FancyBboxPatch((2, 5.8), 10, 1.4, boxstyle="round,pad=0.15",
-                              facecolor='#3498DB', alpha=0.9,
-                              edgecolor='#2980B9', linewidth=2)
-    ax.add_patch(data_box)
-    add_icon_to_plot(ax, 'database', (2.8, 6.5), zoom=0.22, cache_dir=cache_dir)
-    ax.text(7.2, 6.95, 'DATA SOURCES', fontsize=11, fontweight='bold',
-           color='white', ha='center')
-    ax.text(7.2, 6.55, 'Publicly available metagenomic datasets from Indian wastewater studies',
-           fontsize=9, color='white', ha='center')
-    ax.text(7.2, 6.15, 'Medical-influenced sites  |  Non-medical municipal sites',
-           fontsize=8, color='white', ha='center', alpha=0.9)
-    
-    # Arrow down
-    ax.annotate('', xy=(7, 5.1), xytext=(7, 5.65),
-               arrowprops=dict(arrowstyle='->', color='#FFD93D', lw=3))
-    
-    # Analysis Methods - Split into two boxes
-    method1_box = FancyBboxPatch((1.5, 3.6), 5.5, 1.6, boxstyle="round,pad=0.15",
-                                 facecolor='#9B59B6', alpha=0.9,
-                                 edgecolor='#8E44AD', linewidth=2)
-    ax.add_patch(method1_box)
-    add_icon_to_plot(ax, 'dna', (2.2, 4.75), zoom=0.2, cache_dir=cache_dir)
-    ax.text(4.5, 4.95, 'BIOINFORMATICS', fontsize=10, fontweight='bold',
-           color='white', ha='center')
-    ax.text(4.25, 4.55, '• Quality control & filtering', fontsize=8, color='white', ha='center')
-    ax.text(4.25, 4.2, '• ARG identification (ResFinder/CARD)', fontsize=8, color='white', ha='center')
-    ax.text(4.25, 3.85, '• Taxonomic profiling', fontsize=8, color='white', ha='center')
-    
-    method2_box = FancyBboxPatch((7, 3.6), 5.5, 1.6, boxstyle="round,pad=0.15",
-                                 facecolor='#27AE60', alpha=0.9,
-                                 edgecolor='#1E8449', linewidth=2)
-    ax.add_patch(method2_box)
-    add_icon_to_plot(ax, 'chart', (7.7, 4.75), zoom=0.2, cache_dir=cache_dir)
-    ax.text(10, 4.95, 'STATISTICS', fontsize=10, fontweight='bold',
-           color='white', ha='center')
-    ax.text(9.75, 4.55, '• Comparative abundance analysis', fontsize=8, color='white', ha='center')
-    ax.text(9.75, 4.2, '• Diversity metrics (alpha/beta)', fontsize=8, color='white', ha='center')
-    ax.text(9.75, 3.85, '• Differential abundance testing', fontsize=8, color='white', ha='center')
-    
-    # Arrows down
-    ax.annotate('', xy=(7, 2.9), xytext=(4.25, 3.45),
-               arrowprops=dict(arrowstyle='->', color='#FFD93D', lw=2))
-    ax.annotate('', xy=(7, 2.9), xytext=(9.75, 3.45),
-               arrowprops=dict(arrowstyle='->', color='#FFD93D', lw=2))
-    
-    # Expected Outcomes
-    outcome_box = FancyBboxPatch((2, 1.3), 10, 1.7, boxstyle="round,pad=0.15",
-                                 facecolor='#1ABC9C', alpha=0.9,
-                                 edgecolor='#16A085', linewidth=2)
-    ax.add_patch(outcome_box)
-    add_icon_to_plot(ax, 'checkmark', (2.8, 2.3), zoom=0.22, cache_dir=cache_dir)
-    ax.text(7.2, 2.75, 'EXPECTED OUTCOMES', fontsize=11, fontweight='bold',
-           color='white', ha='center')
-    ax.text(7, 2.35, 'Characterization of ARG profiles in medical vs non-medical wastewater',
-           fontsize=8, color='white', ha='center')
-    ax.text(7, 1.95, 'Reproducible analytical framework for wastewater AMR surveillance',
-           fontsize=8, color='white', ha='center')
-    ax.text(7, 1.55, 'Insights into ecological patterns within One Health context',
-           fontsize=8, color='white', ha='center')
-    
-    # Disclaimer box
-    disclaimer_box = FancyBboxPatch((3, 0.2), 8, 0.8, boxstyle="round,pad=0.1",
-                                    facecolor='#ECF0F1', alpha=1.0,
-                                    edgecolor='#F39C12', linewidth=2)
-    ax.add_patch(disclaimer_box)
-    add_icon_to_plot(ax, 'warning', (3.6, 0.6), zoom=0.18, cache_dir=cache_dir)
-    ax.text(7.2, 0.65, 'SCOPE LIMITATION', fontsize=9, fontweight='bold',
-           color='#E67E22', ha='center')
-    ax.text(7.2, 0.35, 'Ecological & population-level analysis only. No clinical, causal, or transmission inference.',
-           fontsize=8, color='black', ha='center')
-    
+    # Scope Limitation Banner
+    ax.add_patch(FancyBboxPatch((3, 0.15), 8, 0.75, boxstyle="round,pad=0.1",
+                                    facecolor=COLORS['neutral_light'], alpha=1.0,
+                                    edgecolor=COLORS['border'], linewidth=1.5*font_scale))
+    ax.text(7, 0.55, 'SCOPE LIMITATION', fontsize=11*font_scale, fontweight='bold',
+           color=COLORS['text_dark'], ha='center')
+    ax.text(7, 0.35, 'Population-level, descriptive analysis only. Interpretation constrained to ecological signals.',
+           fontsize=10*font_scale, color=COLORS['text_grey'], ha='center')
+
+def create_study_design_flowchart():
+    """Create a study design flowchart."""
+    fig, ax = plt.subplots(figsize=(12, 9))
+    fig.patch.set_facecolor(COLORS['white'])
+    draw_study_design_flowchart(ax, font_scale=1.1)
     plt.tight_layout()
     return fig
+
+
+def create_individual_panels(output_dir):
+    """Create Figure 1 to 5 as individual images."""
+    
+    panels = [
+        ('figure_1_one_health.png', draw_one_health_framework),
+        ('figure_2_matrix.png', draw_wastewater_sources),
+        ('figure_3_tier2_context.png', draw_tier_2_context),
+        ('figure_4_logic.png', draw_comparison_framework),
+        ('figure_5_framework.png', draw_analysis_pipeline)
+    ]
+    
+    for filename, draw_func in panels:
+        fig, ax = plt.subplots(figsize=(12, 10))
+        fig.patch.set_facecolor(COLORS['white'])
+        
+        draw_func(ax, font_scale=1.4)
+        
+        plt.tight_layout(pad=1.0)
+        fig.savefig(os.path.join(output_dir, filename),
+                   dpi=300, facecolor=COLORS['white'], edgecolor='none',
+                   bbox_inches='tight', pad_inches=0.4)
+        plt.close(fig)
+        print(f"      ✓ Saved: {filename}")
 
 
 if __name__ == '__main__':
     print("=" * 60)
-    print("AMR WASTEWATER THESIS - VISUAL SYNOPSIS GENERATOR")
+    print("AMR WASTEWATER - ACADEMIC PROPOSAL FIGURE GENERATOR")
     print("=" * 60)
-    print("\nInitializing...")
+    print("\nStarting generation of cohesive figure set...")
     
     # Create output directory
     output_dir = os.path.dirname(os.path.abspath(__file__))
-    icons_dir = os.path.join(output_dir, 'icons')
     
-    # Download icons first
-    print("\n[0/3] Preparing icons...")
-    download_all_icons(icons_dir)
-    
-    # Generate main visualization
-    print("\n[1/3] Creating main 4-panel synopsis visualization...")
-    fig1 = create_full_visualization(icons_dir)
-    fig1.savefig(os.path.join(output_dir, 'amr_thesis_synopsis.png'), 
-                 dpi=300, facecolor='#FFFFFF', edgecolor='none', 
-                 bbox_inches='tight', pad_inches=0.3)
-    print("      ✓ Saved: amr_thesis_synopsis.png")
-    
-    # Generate heatmap concept
-    print("\n[2/3] Creating conceptual ARG heatmap...")
-    fig2 = create_arg_heatmap_concept()
-    fig2.savefig(os.path.join(output_dir, 'arg_heatmap_concept.png'),
-                 dpi=300, facecolor='#FFFFFF', edgecolor='none',
-                 bbox_inches='tight', pad_inches=0.3)
-    print("      ✓ Saved: arg_heatmap_concept.png")
-    
-    # Generate study design flowchart
-    print("\n[3/3] Creating study design flowchart...")
-    fig3 = create_study_design_flowchart(icons_dir)
-    fig3.savefig(os.path.join(output_dir, 'study_design_flowchart.png'),
-                 dpi=300, facecolor='#FFFFFF', edgecolor='none',
-                 bbox_inches='tight', pad_inches=0.3)
-    print("      ✓ Saved: study_design_flowchart.png")
+    # Generate the 5 core figures
+    create_individual_panels(output_dir)
     
     print("\n" + "=" * 60)
-    print("✅ ALL VISUALIZATIONS GENERATED SUCCESSFULLY!")
+    print("✅ COHESIVE SET OF 5 ACADEMIC FIGURES GENERATED SUCCESSFUL!")
     print("=" * 60)
-    print(f"\nOutput location: {output_dir}")
-    print("\nGenerated files:")
-    print("  📊 amr_thesis_synopsis.png     - Main 4-panel overview")
-    print("  📈 arg_heatmap_concept.png     - Conceptual ARG comparison")
-    print("  📋 study_design_flowchart.png  - Study methodology flow")
-    print(f"\n  📁 icons/                      - Cached icon files ({len(icon_cache)} icons)")
-    print("\n💡 Tip: Run with 'python amr_thesis_visualization.py' to regenerate")
-    
-    # Note: plt.show() removed - using non-interactive backend for automated generation
-    print("\n🖼️  To view interactively, open the PNG files or run in Jupyter notebook")
+    print(f"\nLocation: {output_dir}")
+    print("\nGenerated Figure Set:")
+    print("  1. figure_1_one_health.png   - One Health Context of AMR")
+    print("  2. figure_2_matrix.png       - Wastewater as Population Matrix")
+    print("  3. figure_3_tier2_context.png - Tier-2 Indian Urban Context")
+    print("  4. figure_4_logic.png        - Comparative Study Logic")
+    print("  5. figure_5_framework.png    - Analytical/Interpretation Framework")
