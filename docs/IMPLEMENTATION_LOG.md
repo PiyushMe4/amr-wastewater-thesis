@@ -4,7 +4,7 @@
 
 This document serves as a living record of the procedures, methodologies, and technical milestones incorporated into the research project: _"Medical Waste Influence on AMR Gene Patterns in Tier-2 Indian City Wastewater"_.
 
-**Last Updated:** 2026-01-24
+**Last Updated:** 2026-01-25
 
 ---
 
@@ -14,16 +14,13 @@ This document serves as a living record of the procedures, methodologies, and te
 - [x] **Urban Matrix Definition**: Defined urban wastewater as a population-level "matrix" that aggregates AMR signals from community households and healthcare facilities.
 - [x] **Geographic Focus**: Defined the scope for Tier-2 Indian cities, emphasizing the unique challenges of incomplete waste segregation and mixed land use.
 - [x] **Comparative Research Logic**: Established the core methodology of comparing _Medical-influenced_ vs. _Non-medical_ wastewater streams to isolate clinical signatures.
+- [x] **Tier-2 Inference Framework**: Defined relevance through structural and infrastructural analogy rather than direct representation, using reference baselines for contextualization.
 
 ## 2. Technical Infrastructure & Visualization
 
 - [x] **Automated Figure Generation**: Developed a Python-based pipeline (`visualization/amr_thesis_visualization.py`) using Matplotlib for consistent, publication-grade academic figures.
-- [x] **Visual Framework Repository**: Generated and archived five core conceptual figures:
-  - **Figure 1**: One Health Context of AMR.
-  - **Figure 2**: Wastewater as a Population Matrix.
-  - **Figure 3**: Tier-2 Urban Wastewater Profile.
-  - **Figure 4**: Comparative Study Logic.
-  - **Figure 5**: Analytical & Interpretation Framework.
+- [x] **Visual Framework Repository**: Generated and archived five core conceptual figures, labeled as conceptual frameworks with baseline-referenced comparative logic.
+- [x] **Interpretation Guardrails**: Explicitly documented boundaries (population-level, no causal/clinical inference) within both documentation and figure annotations.
 - [x] **Project Scaffolding**: Structured the repository into functional modules (`data/`, `docs/`, `logs/`, `visualization/`).
 
 ## 3. Data & Metadata Strategy
@@ -42,4 +39,5 @@ This document serves as a living record of the procedures, methodologies, and te
 
 ## Change Log
 
+- **2026-01-25**: Incorporated Tier-2 inference logic and baseline-referenced interpretation framework. Updated documentation and visualization code to reflect interpretation boundaries (population-level, no causal inference).
 - **2026-01-24**: Initial creation of the Implementation Log. Consolidated research framework and visualization milestones.

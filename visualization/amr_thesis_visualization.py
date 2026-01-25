@@ -101,7 +101,7 @@ def draw_one_health_framework(ax, font_scale=1.0):
     create_gradient_background(ax)
     
     # Title - Title Case
-    ax.text(5, 7.9, 'One Health Context of Antimicrobial Resistance', fontsize=17*font_scale, fontweight='bold',
+    ax.text(5, 7.9, 'One Health Context of Antimicrobial Resistance (Conceptual Framework)', fontsize=17*font_scale, fontweight='bold',
             color=COLORS['text_dark'], ha='center', va='center')
     
     # Subtitle - No quotes, lighter grey
@@ -160,7 +160,7 @@ def draw_wastewater_sources(ax, font_scale=1.0):
     create_gradient_background(ax)
     
     # Title - Title Case
-    ax.text(5, 7.7, 'Wastewater as a Population Matrix', 
+    ax.text(5, 7.7, 'Wastewater as a Population Matrix (Conceptual Framework)', 
             fontsize=17*font_scale, fontweight='bold', color=COLORS['text_dark'], ha='center')
     
     # Subtitle - No quotes
@@ -217,11 +217,11 @@ def draw_tier_2_context(ax, font_scale=1.0):
     create_gradient_background(ax)
     
     # Title - Title Case
-    ax.text(5, 7.9, 'Tier-2 Urban Wastewater Profile', 
+    ax.text(5, 7.9, 'Tier-2 Urban Wastewater Profile (Conceptual Framework)', 
             fontsize=17*font_scale, fontweight='bold', color=COLORS['text_dark'], ha='center')
     
     # Subtitle - Refined
-    ax.text(5, 7.5, 'Key characteristics of under-studied Tier-2 urban settings',
+    ax.text(5, 7.5, 'Inferred relevance through structural and infrastructural analogy',
             fontsize=11*font_scale, color=COLORS['text_grey'], ha='center', style='italic', alpha=0.85)
     
     # Descriptive Layers - Equal spacing, simplified text
@@ -257,11 +257,11 @@ def draw_comparison_framework(ax, font_scale=1.0):
     create_gradient_background(ax)
     
     # Title - Title Case
-    ax.text(5, 7.7, 'Comparative Study Logic',
+    ax.text(5, 7.7, 'Comparative Study Logic (Baseline-Referenced)',
             fontsize=17*font_scale, fontweight='bold', color=COLORS['text_dark'], ha='center')
     
     # Subtitle - Refined
-    ax.text(5, 7.3, 'Ecological comparison of resistance patterns across wastewater types',
+    ax.text(5, 7.3, 'Ecological comparison of resistance patterns against reference baselines',
             fontsize=11*font_scale, color=COLORS['text_grey'], ha='center', style='italic', alpha=0.85)
     
     # Center Separator - Exactly centered
@@ -274,7 +274,7 @@ def draw_comparison_framework(ax, font_scale=1.0):
     panels = [
         (0.6, 2.7, 'Medical-influenced\nWastewater', COLORS['medical'], 
          ['Elevated antibiotic exposure', 'Point-source healthcare inputs', 'Differentiated ARG patterns']),
-        (5.4, 2.7, 'Non-medical\nWastewater', COLORS['non_medical'], 
+        (5.4, 2.7, 'Non-medical Wastewater\n(Reference Baseline)', COLORS['non_medical'], 
          ['Community baseline signal', 'Distributed urban inputs', 'Background ARG patterns'])
     ]
     
@@ -301,14 +301,14 @@ def draw_analysis_pipeline(ax, font_scale=1.0):
     create_gradient_background(ax)
     
     # Title - Title Case
-    ax.text(5, 7.9, 'Analytical & Interpretation Framework',
+    ax.text(5, 7.9, 'Analytical & Interpretation Framework (Conceptual)',
             fontsize=17*font_scale, fontweight='bold', color=COLORS['text_dark'], ha='center')
     
     # Pipeline steps - No numbering emphasis, increased spacing
     steps = [
         ('Data Acquisition', 'Secondary analysis of\nmetagenomic FASTQ'),
         ('ARG Annotation', 'Bioinformatics profiling\n(CARD / ResFinder)'),
-        ('Comparison', 'Abundance and\ndiversity metrics'),
+        ('Comparison', 'Baseline-referenced\ndiversity metrics'),
         ('Interpretation', 'One Health ecological\ncharacterization')
     ]
     
@@ -324,12 +324,14 @@ def draw_analysis_pipeline(ax, font_scale=1.0):
         ax.text(1.4 + i*2.3, y_step-0.3, desc, fontsize=8.5*font_scale, color=COLORS['text_grey'], ha='center')
     
     # Interpretation Constraint Box - Reduced height, simplified
-    ax.add_patch(FancyBboxPatch((1.8, 3.0), 6.4, 1.4, boxstyle="round,pad=0.15",
+    ax.add_patch(FancyBboxPatch((1.6, 3.0), 6.8, 1.4, boxstyle="round,pad=0.15",
                                  facecolor=COLORS['medical'], alpha=0.03, ec=COLORS['medical'], lw=1.2, linestyle='--'))
     
     ax.text(5, 3.9, 'Interpretation Boundary', fontsize=11*font_scale, fontweight='bold', color=COLORS['medical'], ha='center')
     ax.text(5, 3.5, 'Analysis constrained to population-level ecological patterns', 
            fontsize=11.5*font_scale, color=COLORS['medical'], ha='center', fontweight='normal', style='italic')
+    ax.text(5, 3.15, 'Baseline-referenced comparison; no causal, clinical, or transmission inference',
+           fontsize=9.5*font_scale, color=COLORS['medical'], ha='center', fontweight='normal')
     
     # Footnote - Reduced opacity
     ax.text(5, 2.2, 'Workflow optimized for characterization of secondary datasets', 
@@ -342,9 +344,9 @@ def create_full_visualization():
     fig.patch.set_facecolor(COLORS['white'])
     
     # Main title
-    fig.suptitle('AMR SURVEILLANCE IN URBAN WASTEWATER', 
+    fig.suptitle('AMR CHARACTERIZATION IN URBAN WASTEWATER', 
                  fontsize=22, fontweight='bold', color=COLORS['text_dark'], y=0.98)
-    fig.text(0.5, 0.95, 'Analytical Framework for Assessing Medical Waste Influence on Resistance Patterns',
+    fig.text(0.5, 0.95, 'Analytical Framework for Assessing Medical Waste Influence on Resistance Patterns (Conceptual)',
              fontsize=13, color=COLORS['text_grey'], ha='center', fontweight='bold')
     
     # Create 2x2 grid
@@ -470,13 +472,13 @@ def draw_study_design_flowchart(ax, font_scale=1.0):
                        arrowprops=dict(arrowstyle='->', color=COLORS['neutral'], lw=2.0))
     
     # Scope Limitation Banner
-    ax.add_patch(FancyBboxPatch((3, 0.15), 8, 0.75, boxstyle="round,pad=0.1",
+    ax.add_patch(FancyBboxPatch((2, 0.15), 10, 0.75, boxstyle="round,pad=0.1",
                                     facecolor=COLORS['neutral_light'], alpha=1.0,
                                     edgecolor=COLORS['border'], linewidth=1.5*font_scale))
-    ax.text(7, 0.55, 'SCOPE LIMITATION', fontsize=11*font_scale, fontweight='bold',
+    ax.text(7, 0.55, 'SCOPE & INTERPRETATION BOUNDARY', fontsize=11*font_scale, fontweight='bold',
            color=COLORS['text_dark'], ha='center')
-    ax.text(7, 0.35, 'Population-level, descriptive analysis only. Interpretation constrained to ecological signals.',
-           fontsize=10*font_scale, color=COLORS['text_grey'], ha='center')
+    ax.text(7, 0.35, 'Population-level ecological patterns only. Baseline-referenced; no causal, clinical, or transmission inference.',
+           fontsize=9.5*font_scale, color=COLORS['text_grey'], ha='center')
 
 def create_study_design_flowchart():
     """Create a study design flowchart."""
