@@ -4,7 +4,7 @@
 
 This document serves as a living record of the procedures, methodologies, and technical milestones incorporated into the research project: _"Medical Waste Influence on AMR Gene Patterns in Tier-2 Indian City Wastewater"_.
 
-**Last Updated:** 2026-01-25
+**Last Updated:** 2026-01-26
 
 ---
 
@@ -21,23 +21,45 @@ This document serves as a living record of the procedures, methodologies, and te
 - [x] **Automated Figure Generation**: Developed a Python-based pipeline (`visualization/amr_thesis_visualization.py`) using Matplotlib for consistent, publication-grade academic figures.
 - [x] **Visual Framework Repository**: Generated and archived five core conceptual figures, labeled as conceptual frameworks with baseline-referenced comparative logic.
 - [x] **Interpretation Guardrails**: Explicitly documented boundaries (population-level, no causal/clinical inference) within both documentation and figure annotations.
-- [x] **Project Scaffolding**: Structured the repository into functional modules (`data/`, `docs/`, `logs/`, `visualization/`).
+- [x] **Project Scaffolding**: Structured the repository into functional modules (`data/`, `docs/`, `logs/`, `visualization/`, `pipeline/`).
 
 ## 3. Data & Metadata Strategy
 
 - [x] **Data Sourcing Plan**: Defined a secondary analysis strategy using publicly available metagenomic datasets (FASTQ) rather than primary sampling.
 - [x] **Metadata Standards**: Established a plan for tracking accessions and sample metadata in the `data/` directory.
+- [x] **Dataset Registry**: Created comprehensive dataset registry (`data/metadata/dataset_registry.md`) with curated BioProject accessions.
+- [x] **Master Dataset Catalog**: Added `Datasets_Master.xlsx` with annotated dataset information.
+- [x] **Hospital Wastewater Runs**: Collected 52 DRA accessions for hospital wastewater samples (`data/hospital_wastewater_runs.txt`).
 
 ## 4. Analytical Procedures (Planned/In-Progress)
 
-- [ ] **Data Acquisition**: High-level identification of relevant urban wastewater datasets from NCBI SRA/ENA.
-- [ ] **QC Pipeline**: Implementation of quality control workflows (e.g., FastQC, Trimmomatic).
-- [ ] **ARG Annotation**: Standardizing the use of CARD (Comprehensive Antibiotic Resistance Database) and ResFinder.
-- [ ] **Ecological Profiling**: Implementation of diversity metrics and differential abundance testing.
+- [x] **Data Acquisition**: Identified relevant datasets from NCBI SRA/ENA and DRA.
+  - PRJNA682952 (Northern India hospital wastewater)
+  - PRJNA770854, PRJNA947333, PRJNA723368 (hospital comparisons)
+  - 52 DRA hospital wastewater runs (DRR680724-DRR680775)
+- [x] **QC Pipeline**: Implemented pipeline scaffolding (`pipeline/amr_pipeline.py`) with FastQC and fastp integration.
+- [x] **ARG Annotation**: Integrated CARD/RGI framework in pipeline for ARG detection.
+- [x] **Ecological Profiling**: Developed statistical analysis module (`pipeline/ecological_analysis.py`) with:
+  - Alpha diversity (Shannon, Simpson, Chao1, Pielou evenness)
+  - Beta diversity (Bray-Curtis, Jaccard, PCoA)
+  - Differential abundance testing (Wilcoxon, FDR correction)
+
+## 5. Next Steps
+
+- [ ] **Metadata Enrichment**: Fetch full metadata for DRA runs using Entrez utilities
+- [ ] **Environment Setup**: Configure conda environment with bioinformatics tools
+- [ ] **Pilot Analysis**: Run pipeline on subset of samples to validate workflow
+- [ ] **Comparative Visualization**: Generate ARG heatmaps and diversity plots
 
 ---
 
 ## Change Log
 
+- **2026-01-26**: Major infrastructure update:
+  - Added bioinformatics pipeline (`pipeline/amr_pipeline.py`)
+  - Added ecological analysis module (`pipeline/ecological_analysis.py`)
+  - Created dataset registry and sample manifest
+  - Incorporated user-provided Datasets_Master.xlsx and hospital wastewater runs
+  - Added requirements.txt for Python dependencies
 - **2026-01-25**: Incorporated Tier-2 inference logic and baseline-referenced interpretation framework. Updated documentation and visualization code to reflect interpretation boundaries (population-level, no causal inference).
 - **2026-01-24**: Initial creation of the Implementation Log. Consolidated research framework and visualization milestones.

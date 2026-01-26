@@ -1,0 +1,7 @@
+accession	bioproject	sample_type	location	country	collection_date	study_category	platform	read_type	notes
+SRR13227002	PRJNA682952	hospital_wastewater	Urban_North_India	India	2020	medical_influenced	Illumina	paired	Urban hospital sample
+SRR13227003	PRJNA682952	hospital_wastewater	Urban_North_India	India	2020	medical_influenced	Illumina	paired	Urban hospital sample
+SRR13227004	PRJNA682952	hospital_wastewater	Rural_North_India	India	2020	medical_influenced	Illumina	paired	Rural hospital sample
+SRR13227005	PRJNA682952	hospital_wastewater	Rural_North_India	India	2020	medical_influenced	Illumina	paired	Rural hospital sample
+SRR15384559	PRJNA682952	hospital_wastewater	North_India	India	2021	medical_influenced	Illumina	paired	Hospital wastewater
+SRR15384560	PRJNA682952	hospital_wastewater	North_India	India	2021	medical_influenced	Illumina	paired	Hospital wastewater

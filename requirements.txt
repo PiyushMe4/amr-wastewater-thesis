@@ -1,0 +1,37 @@
+# AMR Wastewater Thesis - Pipeline Dependencies
+# ==============================================
+# Install via: pip install -r requirements.txt
+# Note: Bioinformatics tools (fastqc, fastp, rgi) should be installed via conda
+
+# Core Python packages
+numpy>=1.21.0
+pandas>=1.4.0
+matplotlib>=3.5.0
+seaborn>=0.12.0
+
+# Data handling
+biopython>=1.79
+pysam>=0.19.0
+
+# Visualization
+plotly>=5.10.0
+Pillow>=9.0.0
+
+# Workflow management (optional)
+snakemake>=7.0.0
+
+# Reporting
+multiqc>=1.14
+
+# Utilities
+tqdm>=4.64.0
+pyyaml>=6.0
+jsonschema>=4.0.0
+
+# Statistical analysis
+scipy>=1.9.0
+scikit-bio>=0.5.7
+statsmodels>=0.13.0
+
+# Diversity metrics
+scikit-learn>=1.1.0
