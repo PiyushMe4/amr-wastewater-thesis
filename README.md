@@ -1,33 +1,46 @@
 # AMR Characterization Using Wastewater Metagenomics
 
-This repository documents the research workflow, dataset curation, and analysis steps for a Master's thesis focused on antimicrobial resistance (AMR) characterization using wastewater metagenomic data.
+Master's thesis research on antimicrobial resistance (AMR) characterization using wastewater metagenomic data.
 
-## Scope & Interpretation Framework
+## 📄 Master Document
 
-- **Comparative Analysis**: Hospital wastewater vs non-medical urban sewage.
-- **Data Strategy**: Utilization of publicly available metagenomic datasets.
-- **Resistome Profiling**: Characterization of antibiotic resistance gene (ARG) patterns.
-- **One Health Context**: Environmental characterization of AMR within the urban interface.
+**All project details, methodology, and interpretation frameworks are consolidated in the [Master Document](docs/MASTER_DOCUMENT.md).**
 
-**Tier-2 Inference Logic**:
-Tier-2 relevance is defined by infrastructural characteristics, such as mixed land use and incomplete wastewater segregation, rather than administrative labels. No dataset is presented as a direct representation of a specific Tier-2 city; instead, inferences are conditional and comparative, using structural and infrastructural analogy to provide relevance to Tier-2 urban settings.
+This single authoritative reference covers:
 
-## Visualization Framework
+- Project rationale and One Health framing
+- Spatial gradient framework (upstream–catchment–downstream)
+- Tier-2 inference logic
+- Data sources and analytical methods
+- Interpretation boundaries
+- Project status and milestones
 
-All figures in this repository are conceptual and explanatory. Visualizations are intended to support interpretation and clarify the research methodology, rather than representing empirical results. Comparisons shown in visualizations are baseline-referenced, using Tier-1 Indian and international wastewater datasets as reference baselines to contextualize resistance patterns.
+## Quick Reference
 
-## Interpretation Boundaries
+| Topic                 | Section in Master Document                                            |
+| --------------------- | --------------------------------------------------------------------- |
+| Research questions    | [Section 3](docs/MASTER_DOCUMENT.md#3-research-questions--objectives) |
+| Spatial gradient      | [Section 5](docs/MASTER_DOCUMENT.md#5-spatial-gradient-framework)     |
+| Interpretation limits | [Section 7](docs/MASTER_DOCUMENT.md#7-interpretation-boundaries)      |
+| Data sources          | [Section 8](docs/MASTER_DOCUMENT.md#8-data-sources--strategy)         |
+| Methods               | [Section 9](docs/MASTER_DOCUMENT.md#9-analytical-methods)             |
 
-To maintain methodological transparency, the following boundaries are enforced:
+## Repository Structure
 
-- **Ecological Focus**: Analysis is constrained to population-level ecological patterns.
-- **Baseline-Referenced Comparison**: Findings are contextualized against established reference datasets.
-- **No Causal Inference**: This study does not provide causal, clinical, or transmission inference.
-- **Aggregated Signal**: Wastewater data reflects collective urban pressure and not individual risk or source-specific causality.
+```
+├── data/           # Metadata and processed results
+├── docs/           # Documentation (MASTER_DOCUMENT.md)
+├── logs/           # Decision logs, progress tracking
+├── pipeline/       # Bioinformatics and analysis code
+├── requirements.txt
+└── README.md       # This file
+```
 
 ## Status
 
-- [x] Research Framework & Visualization Framework
+- [x] Research Framework & Result-Inference Pipeline
 - [ ] Dataset Selection & Curation (In Progress)
 
-For a detailed record of all incorporated procedures, see the [Implementation Log](docs/IMPLEMENTATION_LOG.md).
+---
+
+_Last updated: 2026-01-28_

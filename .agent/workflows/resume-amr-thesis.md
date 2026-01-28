@@ -39,15 +39,15 @@ description: Resume AMR Wastewater Thesis work from last session
    - Download a subset of samples (2-3) for pipeline validation
    - Run QC → Trimming → ARG annotation workflow
 
-4. **Comparative Visualization**
-   - Generate ARG heatmaps comparing medical vs non-medical streams
-   - Create diversity plots (alpha/beta)
+4. **Comparative Analysis & Result Inference**
+   - Generate ARG profiles comparing medical vs non-medical streams
+   - Compute diversity metrics (alpha/beta) for ecological characterization
 
 ---
 
 ## Key Files to Review
 
-- `docs/IMPLEMENTATION_LOG.md` - Full project status
+- `docs/MASTER_DOCUMENT.md` - **Single authoritative reference** for all project details
 - `data/metadata/dataset_registry.md` - All datasets cataloged
 - `pipeline/amr_pipeline.py` - Bioinformatics pipeline
 - `pipeline/ecological_analysis.py` - Statistical analysis
